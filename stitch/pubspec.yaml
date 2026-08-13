@@ -1,0 +1,58 @@
+name: sidad
+description: "سداد | Sidad — Digital Debt Management Platform"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+
+  # Navigation
+  go_router: ^15.1.2
+
+  # Networking
+  dio: ^5.7.0
+
+  # Storage
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.3.5
+
+  # UI
+  google_fonts: ^6.2.1
+  shimmer: ^3.0.0
+  flutter_animate: ^4.5.2
+
+  # Utilities
+  intl: ^0.20.2
+  equatable: ^2.0.7
+  share_plus: ^10.1.2
+  dartz: ^0.10.1
+  path_provider: ^2.1.3
+  qr_flutter: ^4.1.0
+
+  cupertino_icons: ^1.0.8
+  sqflite: ^2.4.2
+  path: ^1.9.1
+  connectivity_plus: ^7.2.0
+  uuid: ^4.5.3
+  flutter_local_notifications: ^20.1.0
+  riverpod_annotation: ^2.6.1
+  cached_network_image: ^3.4.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  riverpod_generator: ^2.6.5
+  build_runner: ^2.5.4
+
+flutter:
+  uses-material-design: true

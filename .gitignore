@@ -1,0 +1,33 @@
+# Dependencies & Vendor
+**/vendor/
+**/node_modules/
+
+# Environment files
+**/.env
+**/.env.backup
+**/.env.production
+**/.env.*.local
+
+# Flutter / Dart build artifacts
+**/build/
+**/.dart_tool/
+**/.pub/
+**/.pub-cache/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# IDE & System
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+Thumbs.db
+*.log
+
+# Laravel storage logs & cache
+backend-api/storage/logs/*.log
+backend-api/storage/framework/cache/*
+backend-api/storage/framework/sessions/*
+backend-api/storage/framework/views/*

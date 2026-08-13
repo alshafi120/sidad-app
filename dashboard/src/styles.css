@@ -1,0 +1,178 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap");
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Cairo", "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --radius-lg: 0.75rem;
+  --radius-md: 0.5rem;
+  --radius-sm: 0.25rem;
+  
+  /* Primary deep indigo tint */
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--destructive);
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-foreground: var(--foreground);
+}
+
+:root {
+  --background: #f4f6fa;
+  --foreground: #0f172a;
+  
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  
+  --primary: #312e81; /* Deep Indigo */
+  --primary-foreground: #ffffff;
+  
+  --secondary: #2563eb; /* Blue */
+  --secondary-foreground: #ffffff;
+  
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+  
+  --destructive: #e11d48; /* Red */
+  --destructive-foreground: #ffffff;
+  
+  --warning: #ea580c; /* Orange */
+  --warning-foreground: #ffffff;
+  
+  --success: #16a34a; /* Green */
+  --success-foreground: #ffffff;
+  
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #312e81;
+  --radius: 0.75rem;
+
+  /* Custom Sidebar colors (Dark Navy always for signature look) */
+  --sidebar-bg: #090d16;
+  --sidebar-fg: #f8fafc;
+  --sidebar-hover: #1e293b;
+  --sidebar-active: #312e81;
+  --sidebar-border: #131926;
+}
+
+.dark {
+  --background: #020617;
+  --foreground: #f8fafc;
+  
+  --card: #0b1329;
+  --card-foreground: #f8fafc;
+  
+  --popover: #0b1329;
+  --popover-foreground: #f8fafc;
+  
+  --primary: #6366f1; /* Lighter Indigo for Dark Mode */
+  --primary-foreground: #ffffff;
+  
+  --secondary: #3b82f6;
+  --secondary-foreground: #ffffff;
+  
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+  
+  --destructive: #f43f5e;
+  --destructive-foreground: #ffffff;
+  
+  --warning: #f97316;
+  --warning-foreground: #ffffff;
+  
+  --success: #22c55e;
+  --success-foreground: #ffffff;
+  
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #6366f1;
+
+  /* Custom Sidebar colors in dark mode */
+  --sidebar-bg: #070a13;
+  --sidebar-fg: #f8fafc;
+  --sidebar-hover: #0f172a;
+  --sidebar-active: #4f46e5;
+  --sidebar-border: #131a2d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100vh;
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Scrollbar RTL styling and styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Utilities */
+.font-english {
+  font-family: 'Outfit', sans-serif;
+}
+
+.font-arabic {
+  font-family: 'Cairo', sans-serif;
+}
+
+/* Custom cards */
+.premium-card {
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.premium-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+}
+
+/* Animations */
+.slide-up {
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
