@@ -316,7 +316,7 @@ class MerchantDashboardScreen extends ConsumerWidget {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () => context.push('/transactions'),
                         child: const Text(AppStrings.viewAll),
                       ),
                     ],

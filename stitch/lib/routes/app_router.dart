@@ -14,6 +14,7 @@ import '../features/customer/presentation/screens/customer_list_screen.dart';
 import '../features/customer/presentation/screens/customer_view_screen.dart';
 import '../features/debts/presentation/screens/add_debt_screen.dart';
 import '../features/debts/presentation/screens/debt_details_screen.dart';
+import '../features/debts/presentation/screens/debts_list_screen.dart';
 import '../features/merchant/presentation/screens/merchant_dashboard_screen.dart';
 import '../features/notifications/presentation/screens/notifications_screen.dart';
 import '../features/payments/presentation/screens/register_payment_screen.dart';
@@ -121,6 +122,42 @@ final GoRouter appRouter = GoRouter(
         final extra = state.extra;
         return RegisterPaymentScreen(
           customerId: extra is String ? extra : null,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/transactions',
+      builder: (_, state) {
+        final extra = state.extra;
+        String? customerId;
+        String? customerName;
+        if (extra is Map<String, dynamic>) {
+          customerId = extra['customerId'] as String?;
+          customerName = extra['customerName'] as String?;
+        } else if (extra is String) {
+          customerId = extra;
+        }
+        return DebtsListScreen(
+          customerId: customerId,
+          customerName: customerName,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/debts',
+      builder: (_, state) {
+        final extra = state.extra;
+        String? customerId;
+        String? customerName;
+        if (extra is Map<String, dynamic>) {
+          customerId = extra['customerId'] as String?;
+          customerName = extra['customerName'] as String?;
+        } else if (extra is String) {
+          customerId = extra;
+        }
+        return DebtsListScreen(
+          customerId: customerId,
+          customerName: customerName,
         );
       },
     ),

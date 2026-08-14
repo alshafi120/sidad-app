@@ -172,7 +172,13 @@ class CustomerViewScreen extends ConsumerWidget {
                           context,
                           'المعاملات',
                           Icons.receipt_long_outlined,
-                          () => context.push('/add-debt', extra: customer.id),
+                          () => context.push(
+                            '/transactions',
+                            extra: {
+                              'customerId': customer.id,
+                              'customerName': customer.name,
+                            },
+                          ),
                         ),
                       ),
                       Expanded(
@@ -231,20 +237,50 @@ class CustomerViewScreen extends ConsumerWidget {
           ],
         ),
         child: SafeArea(
-          child: ElevatedButton(
-            onPressed: () => context.push('/add-debt', extra: customer.id),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push('/add-debt', extra: customer.id),
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text(
+                    'مديونية جديدة',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
               ),
-            ),
-            child: const Text(
-              'عرض كل العمليات',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () => context.push(
+                    '/transactions',
+                    extra: {
+                      'customerId': customer.id,
+                      'customerName': customer.name,
+                    },
+                  ),
+                  icon: const Icon(Icons.receipt_long_rounded),
+                  label: const Text(
+                    'عرض كل العمليات',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
