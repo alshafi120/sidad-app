@@ -1,8 +1,9 @@
-import 'dart:io';
 import 'dart:convert';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io' if (dart.library.js_interop) 'dart:html' as universal_io;
 import '../../features/debts/domain/entities/debt_entity.dart';
 import '../../features/customer/domain/entities/customer_entity.dart';
 
@@ -66,28 +67,39 @@ class ExportService {
       );
     }
 
-    // Save file locally to temporary storage
-    final tempDir = await getTemporaryDirectory();
-    final sanitizedCustomerName = customer.name
-        .replaceAll(RegExp(r'[^\w\s\u0600-\u06FF]'), '')
-        .replaceAll(' ', '_');
-    final file = File('${tempDir.path}/كشف_حساب_$sanitizedCustomerName.csv');
-    await file.writeAsString(
-      buffer.toString(),
-      mode: FileMode.write,
-      encoding: utf8,
-    );
+    if (kIsWeb) {
+      // On web, share text statement directly for maximum compatibility
+      await shareTextStatement(customer: customer, debts: debts);
+      return;
+    }
 
-    // Share using share_plus
-    await Share.shareXFiles(
-      [XFile(file.path, mimeType: 'text/csv')],
-      subject: 'كشف حساب - ${customer.name}',
-      text:
-          'مرفق كشف حساب العميل ${customer.name} - إجمالي الديون المتبقية: ${numberFormat.format(customer.remainingDebt)} ر.ي\nتم التصدير عبر منصة سداد.',
-    );
+    try {
+      // Save file locally to temporary storage
+      final tempDir = await getTemporaryDirectory();
+      final sanitizedCustomerName = customer.name
+          .replaceAll(RegExp(r'[^\w\s\u0600-\u06FF]'), '')
+          .replaceAll(' ', '_');
+      final filePath = '${tempDir.path}/كشف_حساب_$sanitizedCustomerName.csv';
+      final file = universal_io.File(filePath);
+      await file.writeAsString(
+        buffer.toString(),
+        mode: universal_io.FileMode.write,
+        encoding: utf8,
+      );
+
+      // Share using share_plus
+      await Share.shareXFiles(
+        [XFile(filePath, mimeType: 'text/csv')],
+        subject: 'كشف حساب - ${customer.name}',
+        text:
+            'مرفق كشف حساب العميل ${customer.name} - إجمالي الديون المتبقية: ${numberFormat.format(customer.remainingDebt)} ر.ي\nتم التصدير عبر منصة سداد.',
+      );
+    } catch (_) {
+      await shareTextStatement(customer: customer, debts: debts);
+    }
   }
 
-  /// Generates a beautiful formatted text receipt/statement that can be shared directly as text.
+  /// Generates a beautiful formatted text receipt/statement that can be shared directly via WhatsApp / SMS.
   static Future<void> shareTextStatement({
     required Customer customer,
     required List<Debt> debts,
@@ -96,39 +108,52 @@ class ExportService {
     final numberFormat = NumberFormat('#,###', 'ar');
 
     final buffer = StringBuffer();
-    buffer.writeln('📄 *كشف حساب مديونية - منصة سداد*');
-    buffer.writeln('==================================');
+    buffer.writeln('📄 *كشف حساب مديونية - تطبيق سداد*');
+    buffer.writeln('══════════════════════');
     buffer.writeln('👤 *العميل:* ${customer.name}');
     buffer.writeln('📞 *الهاتف:* ${customer.phone}');
     buffer.writeln('📅 *التاريخ:* ${dateFormat.format(DateTime.now())}');
-    buffer.writeln('==================================');
+    buffer.writeln('══════════════════════');
     buffer.writeln(
       '💰 *إجمالي المديونية:* ${numberFormat.format(customer.totalDebt)} ر.ي',
     );
     buffer.writeln(
-      '✅ *المسدد:* ${numberFormat.format(customer.paidAmount)} ر.ي',
+      '✅ *المبلغ المسدد:* ${numberFormat.format(customer.paidAmount)} ر.ي',
     );
     buffer.writeln(
-      '⚠️ *المتبقي:* ${numberFormat.format(customer.remainingDebt)} ر.ي',
+      '⚠️ *المبلغ المتبقي:* ${numberFormat.format(customer.remainingDebt)} ر.ي',
     );
-    buffer.writeln('==================================');
+    buffer.writeln('══════════════════════');
     buffer.writeln('📋 *تفاصيل العمليات:*');
 
-    for (int i = 0; i < debts.length; i++) {
-      final debt = debts[i];
-      final statusStr = _getStatusText(debt.status);
-      buffer.writeln('${i + 1}. ${debt.description ?? 'مديونية'}');
-      buffer.writeln(
-        '   • المبلغ: ${numberFormat.format(debt.amount)} ر.ي | المتبقي: ${numberFormat.format(debt.amount - debt.paidAmount)} ر.ي',
-      );
-      buffer.writeln(
-        '   • الحالة: $statusStr | تاريخ: ${dateFormat.format(debt.createdAt)}',
-      );
-      buffer.writeln('----------------------------------');
+    if (debts.isEmpty) {
+      buffer.writeln('لا توجد عمليات مسجلة حالياً.');
+    } else {
+      for (int i = 0; i < debts.length; i++) {
+        final debt = debts[i];
+        final statusStr = _getStatusText(debt.status);
+        final remaining = debt.amount - debt.paidAmount;
+        buffer.writeln('${i + 1}️⃣ *${debt.description ?? 'مديونية'}*');
+        buffer.writeln(
+          '   • الإجمالي: ${numberFormat.format(debt.amount)} ر.ي',
+        );
+        buffer.writeln(
+          '   • المسدد: ${numberFormat.format(debt.paidAmount)} ر.ي | المتبقي: ${numberFormat.format(remaining)} ر.ي',
+        );
+        buffer.writeln(
+          '   • الحالة: $statusStr',
+        );
+        buffer.writeln(
+          '   • التاريخ: ${dateFormat.format(debt.createdAt)}',
+        );
+        if (i < debts.length - 1) {
+          buffer.writeln('──────────────────────');
+        }
+      }
     }
 
-    buffer.writeln('\n*شكراً لتعاملكم معنا.*');
-    buffer.writeln('تم التوليد عبر تطبيق سداد.');
+    buffer.writeln('\n🙏 *شكراً لتعاملكم معنا ونرجو المبادرة بالسداد.*');
+    buffer.writeln('تم التوليد تلقائياً عبر منصة سداد الإلكترونية.');
 
     await Share.share(
       buffer.toString(),
@@ -138,8 +163,8 @@ class ExportService {
 
   static String _getStatusText(DebtStatusEnum status) {
     return switch (status) {
-      DebtStatusEnum.paid => 'مسدد ✅',
-      DebtStatusEnum.overdue => 'متأخر ⚠️',
+      DebtStatusEnum.paid => 'مسدد بالكامل ✅',
+      DebtStatusEnum.overdue => 'متأخر عن السداد ⚠️',
       DebtStatusEnum.partiallyPaid => 'مسدد جزئياً 🔄',
       _ => 'معلق ⏳',
     };

@@ -14,6 +14,7 @@ import '../providers/customer_providers.dart';
 import '../../domain/entities/customer_entity.dart';
 import '../../../debts/presentation/providers/debt_providers.dart';
 import '../../../debts/domain/entities/debt_entity.dart';
+import '../../../../core/services/export_service.dart';
 
 final _fmt = NumberFormat('#,###.00', 'ar');
 final _dateFmt = DateFormat('yyyy/MM/dd hh:mm a', 'ar');
@@ -64,6 +65,17 @@ class CustomerViewScreen extends ConsumerWidget {
           'تفاصيل العميل',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share_rounded),
+            tooltip: 'إرسال كشف الحساب',
+            onPressed: () => _showExportBottomSheet(
+              context,
+              customer,
+              debtsAsync.valueOrNull ?? [],
+            ),
+          ),
+        ],
       ),
       body: CustomScrollView(
         slivers: [
@@ -162,7 +174,7 @@ class CustomerViewScreen extends ConsumerWidget {
 
                   const SizedBox(height: 32),
 
-                  // Action Buttons Row
+                  // Action Buttons Row (4 Items)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,6 +207,18 @@ class CustomerViewScreen extends ConsumerWidget {
                           'إضافة دين',
                           Icons.post_add_outlined,
                           () => context.push('/add-debt', extra: customer.id),
+                        ),
+                      ),
+                      Expanded(
+                        child: _buildActionItem(
+                          context,
+                          'كشف حساب',
+                          Icons.share_outlined,
+                          () => _showExportBottomSheet(
+                            context,
+                            customer,
+                            debtsAsync.valueOrNull ?? [],
+                          ),
                         ),
                       ),
                     ],
@@ -422,6 +446,125 @@ class CustomerViewScreen extends ConsumerWidget {
     }
     return SliverFillRemaining(
       child: Center(child: Text('خطأ: ${debtsAsync.error}')),
+    );
+  }
+
+  void _showExportBottomSheet(
+    BuildContext context,
+    Customer customer,
+    List<Debt> debts,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'إرسال كشف حساب - ${customer.name}',
+              style: Theme.of(ctx).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'المبلغ المتبقي: ${_fmt.format(customer.remainingDebt)} ${AppStrings.currency}',
+              style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                    color: customer.remainingDebt > 0
+                        ? AppColors.error
+                        : AppColors.success,
+                    fontWeight: FontWeight.bold,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            // Option 1: WhatsApp / Text
+            ListTile(
+              onTap: () async {
+                Navigator.pop(ctx);
+                await ExportService.shareTextStatement(
+                  customer: customer,
+                  debts: debts,
+                );
+              },
+              leading: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF25D366).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.chat_bubble_outline_rounded,
+                  color: Color(0xFF25D366),
+                  size: 24,
+                ),
+              ),
+              title: const Text(
+                'مشاركة عبر واتساب / نص منسق',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: const Text(
+                'رسالة منسقة وجاهزة للإرسال المباشر للعميل',
+              ),
+              trailing: const Icon(Icons.chevron_left_rounded),
+            ),
+            const Divider(height: 16),
+            // Option 2: Excel / CSV
+            ListTile(
+              onTap: () async {
+                Navigator.pop(ctx);
+                await ExportService.exportCustomerDebtsToExcel(
+                  customer: customer,
+                  debts: debts,
+                );
+              },
+              leading: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF107C41).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.table_chart_outlined,
+                  color: Color(0xFF107C41),
+                  size: 24,
+                ),
+              ),
+              title: const Text(
+                'تصدير كملف إكسل (Excel / CSV)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: const Text(
+                'جدول تفصيلي بالعمليات والتواريخ والدفعات',
+              ),
+              trailing: const Icon(Icons.chevron_left_rounded),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
     );
   }
 }

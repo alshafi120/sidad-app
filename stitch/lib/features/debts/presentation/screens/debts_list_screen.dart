@@ -13,6 +13,8 @@ import '../../../../shared/widgets/sidad_empty_state.dart';
 import '../../../../shared/widgets/sidad_shimmer.dart';
 import '../../../../shared/widgets/status_chip.dart';
 import '../providers/debt_providers.dart';
+import '../../../../core/services/export_service.dart';
+import '../../../customer/domain/entities/customer_entity.dart';
 import '../../domain/entities/debt_entity.dart';
 
 final _fmt = NumberFormat('#,###', 'ar');
@@ -57,6 +59,27 @@ class _DebtsListScreenState extends ConsumerState<DebtsListScreen> {
       appBar: AppBar(
         title: Text(title),
         actions: [
+          if (widget.customerId != null && widget.customerName != null)
+            IconButton(
+              icon: const Icon(Icons.share_rounded),
+              tooltip: 'إرسال كشف الحساب',
+              onPressed: () {
+                final debts = debtsAsync.valueOrNull ?? [];
+                final total = debts.fold<double>(0, (sum, d) => sum + d.amount);
+                final paid = debts.fold<double>(0, (sum, d) => sum + d.paidAmount);
+                ExportService.shareTextStatement(
+                  customer: Customer(
+                    id: widget.customerId!,
+                    name: widget.customerName!,
+                    phone: '',
+                    createdAt: DateTime.now(),
+                    totalDebt: total,
+                    paidAmount: paid,
+                  ),
+                  debts: debts,
+                );
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.add_rounded),
             tooltip: 'إضافة مديونية',
