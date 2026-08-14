@@ -64,6 +64,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin,merchant')->group(function () {
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index']);
+        Route::get('/merchants/dashboard', [DashboardController::class, 'index']);
 
         // Customers
         Route::post('/customers/{id}/link', [CustomerController::class, 'linkAccount']);
