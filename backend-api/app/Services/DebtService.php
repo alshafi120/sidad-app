@@ -88,7 +88,7 @@ class DebtService
                 'paid_amount' => 0,
                 'remaining_amount' => $totalAmount,
                 'currency' => 'SAR',
-                'status' => DebtStatus::Pending,
+                'status' => DebtStatus::Active,
                 'installment_count' => $installmentCount,
                 'due_date' => $data['due_date'] ?? null,
             ]);
